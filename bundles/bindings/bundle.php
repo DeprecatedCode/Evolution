@@ -88,12 +88,22 @@ class Collection {
     
     // Execute the list of items
     public function execute() {
+        
+        // Prepare return array
+        $return = array();
+        
+        // Loop through collection
         foreach($this->items as $item) {
+            
+            // Call each item and add to return value
             $bundle = $item->bundle;
-            call_user_func_array(
+            $return[] = call_user_func_array(
                 array(Kernel::$bundle(), $item->method),
                 func_get_args()
             );
         }
+        
+        // Return the array
+        return $return;
     }
 }
