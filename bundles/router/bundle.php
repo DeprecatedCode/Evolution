@@ -40,6 +40,6 @@ class Bundle {
         Kernel::bindings('router:route')->execute($path);
         
         // Nothing matched
-        throw new Exception("No route found for /" . implode('/', $path));
+        throw new Exception("No route found for `/" . implode('/', $path) . '`');
     }
 }

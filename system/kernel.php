@@ -10,7 +10,7 @@ use \Exception;
  */
 class Kernel {
     
-    private static $bundles = array();
+    public static $root = null;
     
     public static $bundlePaths = null;
     
@@ -18,6 +18,10 @@ class Kernel {
     
     public static $exceptionHandler;
     
+    // Private bundles list
+    private static $bundles = array();
+    
+    // Handle Kernel::bundle() calls
     public static function __callStatic($name, $arguments) {
         
         // Bundles are never created twice
@@ -45,7 +49,7 @@ class Kernel {
         
         // Look for bundles in these directories
         $searchLocations = array(
-            dirname(__DIR__) . '/bundles'
+            self::$root . '/bundles'
         );
         
         // Check each location for bundles
@@ -72,26 +76,27 @@ class Kernel {
         
         // Check for bundle
         if(isset(self::$bundlePaths[$name])) {
-            foreach(self::$bundlePaths[$name] as $path) {
+            foreach(self::$bundlePaths[$name] as $dir) {
                 
                 // Check for bundle file
-                $path .= '/bundle.php';
+                $file = "$dir/bundle.php";
                 
-                if(is_file($path)) {
+                if(!is_file($file))
+                    continue;
                     
-                    // Include the file
-                    require_once($path);
+                // Include the file
+                require_once($file);
+                
+                // Bundle class
+                $class = "\\Evolution\\Bundles\\$name\\Bundle";
+                
+                // Check for bundle class
+                if(!class_exists($class))
+                    throw new Exception("Class `$class` is not defined in `$file`");
                     
-                    // Check for bundle class
-                    $class = "Evolution\\Bundles\\$name\\Bundle";
-                    
-                    if(class_exists($class)) {
-                        
-                        // Load bundle
-                        self::$bundles[$name] = new $class;
-                        return true;
-                    }
-                }
+                // Load bundle
+                self::$bundles[$name] = new $class;
+                return true;
             }
         }
         
@@ -100,9 +105,12 @@ class Kernel {
     }
 }
 
+// Save the Kernel root directory
+Kernel::$root = dirname(__DIR__);
+
 // Default Error Handler
 Kernel::$errorHandler = function($errno , $errstr, $errfile, $errline) {
-    throw new Exception("$errstr <i>on line $errline of $errfile");
+    throw new Exception("$errstr on line $errline of `$errfile`");
 };
 
 // Default Exception Handler

@@ -1,7 +1,7 @@
 <?php
 
 namespace Evolution\Bundles\Bindings;
-use Evolution\Utility;
+use Evolution\Utility\JSON;
 use Evolution\Kernel;
 use \Exception;
 
@@ -18,15 +18,15 @@ class Bundle {
      * Create a collection of bindings
      * @author Nate Ferrero
      */
-    public function __invoke_bundle($bundle) {
+    public function __invoke_bundle($name) {
         
         // Check if bindings need to be loaded
         if(is_null(self::$bindings))
             self::loadBindings();
-            
+        
         // Return a binding collection
         return new Collection(
-            isset(self::$bindings[$bundle]) ? self::$bindings[$bundle] : array()
+            isset(self::$bindings[$name]) ? self::$bindings[$name] : array()
         );
     }
     
@@ -38,7 +38,35 @@ class Bundle {
                 $path .= '/bindings.json';
                 
                 if(is_file($path)) {
-                    self::$bindings[$bundle] = Utility\JSON::decodeFile($path);
+                    
+                    // Load and verify items
+                    $items = JSON::decodeFile($path);
+                    if(!is_array($items))
+                        throw new Exception("Bindings list is not JSON array in file `$path`");
+                        
+                    // Add items to bindings array
+                    $index = 0;
+                    foreach($items as $item) {
+                        
+                        // Keep track of binding number
+                        $index++;
+                        
+                        // Check for incorrect binding format
+                        if(!isset($item->name) || !isset($item->method)) {
+                            $json = JSON::encode($item);
+                            throw new Exception("JSON bindings entry #$index: `$json`, is malformed in file `$path`");   
+                        }
+                        
+                        // Check if entry exists
+                        if(!isset(self::$bindings[$item->name]))
+                            self::$bindings[$item->name] = array();
+                            
+                        // Finally add the binding
+                        self::$bindings[$item->name][] = (object) array(
+                            'bundle' => $bundle,
+                            'method' => $item->method
+                        );
+                    }
                 }
             }
         }
@@ -54,11 +82,19 @@ class Collection {
     
     private $items;
     
+    // Store the items for use
     public function __construct($items) {
         $this->items = $items;
     }
     
+    // Execute the list of items
     public function execute() {
-        var_dump(func_get_args());
+        foreach($this->items as $item) {
+            $bundle = $item->bundle;
+            call_user_func_array(
+                array(Kernel::$bundle(), $item->method),
+                func_get_args()
+            );
+        }
     }
 }

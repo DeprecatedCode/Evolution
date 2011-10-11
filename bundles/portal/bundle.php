@@ -1,23 +1,71 @@
 <?php
 
-    // Add the standard portal path if none set
-    if(count($this->portalPaths) == 0)
-        $this->portalPaths[] = dirname(dirname(__DIR__)) . '/portals';
+namespace Evolution\Bundles\Portal;
+use Evolution\Kernel;
+use \Exception;
+
+/**
+ * Evolution Portal Bundle
+ * @author Nate Ferrero
+ */
+class Bundle {
     
-    // Paths where this portal exists
-    $paths = array();
-    
-    // Portal Name
-    $name = strtolower($route[0]);
-    
-    // Check for portal in paths
-    foreach($this->portalPaths as $path) {
-        $path .= '/' + $name;
-        if(is_dir($path))
-            $paths[] = $path;
-    }
-    
-    // If any paths matched
-    if(count($paths) > 0) {
+    public $portalPaths = array();
+
+    public function route($path) {
         
+        // Check for null first segment
+        if(!isset($path[0]))
+            return false;
+    
+        // Add the standard portal path if none set
+        if(count($this->portalPaths) == 0)
+            $this->portalPaths[] = Kernel::$root . '/portals';
+        
+        // Paths where this portal exists
+        $dirs = array();
+        
+        // Portal Name
+        $name = strtolower($path[0]);
+        
+        // Check for portal in paths
+        foreach($this->portalPaths as $dir) {
+            $dir .= '/' . $name;
+            if(is_dir($dir))
+                $dirs[] = $dir;
+        }
+        
+        // If any paths matched
+        if(count($dirs) > 0) {
+            
+            // Remove the first segment
+            array_shift($path);
+            
+            // Process the portal bindings
+            try {
+                Kernel::bindings('portal:route')->execute($dirs, $path);
+                
+                // If no match was made
+                $pstr = '/' . implode('/', $path);
+                throw new Exception("Resource not found at `$pstr`");
+            } 
+            
+            // Handle any exceptions
+            catch(Exception $exception) {
+                
+                // Update exception
+                $exception = new Exception($exception->getMessage() . " in portal `$name`", 0, $exception);
+                
+                // Try to resolve with error pages
+                Kernel::bindings('portal:exception')->execute($dirs, $path, $exception);
+                
+                // Else throw the error
+                throw $exception;
+            }
+            
+            // If no error binding
+            $path = '/'.implode('/', $path);
+            throw new Exception("No matching route for `$path` in portal `$name`");
+        }
     }
+}

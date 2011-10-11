@@ -16,7 +16,7 @@ foreach(glob(__DIR__ . '/utilities/*') as $file)
     require_once($file);
 
 // Include Evolution
-require_once(__DIR__ . '/evolution.php');
+require_once(__DIR__ . '/kernel.php');
 
 // Short access to the kernel
 use Evolution\Kernel as e;
