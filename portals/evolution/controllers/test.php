@@ -1,6 +1,8 @@
 <?php
 
 namespace Controllers\Test;
+use Evolution\Kernel as e;
+
 use \Exception;
 
 /**
@@ -8,5 +10,11 @@ use \Exception;
  * @author Nate Ferrero
  */
 class Controller {
+	
+	public function apple() {
+		e::members();
+		echo 'test';
+		return 1;
+	}
 
 }

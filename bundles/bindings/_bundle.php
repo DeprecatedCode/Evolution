@@ -102,7 +102,7 @@ class Collection {
                 func_get_args()
             );
         }
-        
+
         // Return the array
         return $return;
     }

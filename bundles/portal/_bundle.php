@@ -43,11 +43,9 @@ class Bundle {
             
             // Process the portal bindings
             try {
-                Kernel::bindings('portal:route')->execute($dirs, $path);
-                
-                // If no match was made
-                $pstr = '/' . implode('/', $path);
-                throw new Exception("Resource not found at `$pstr`");
+                $matches = Kernel::bindings('portal:route')->execute($dirs, $path);
+
+                # @todo if no match was made 404 binding
             } 
             
             // Handle any exceptions
@@ -63,9 +61,8 @@ class Bundle {
                 throw $exception;
             }
             
-            // If no error binding
-            $path = '/'.implode('/', $path);
-            throw new Exception("No matching route for `$path` in portal `$name`");
+            # @todo if no match was made 404 binding
+
         }
     }
 }
