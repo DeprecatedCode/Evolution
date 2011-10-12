@@ -112,7 +112,7 @@ class Kernel {
 				self::$bundles[$name] = new $class;
 				
 				// initialize the bundle if wanted
-				if(method_exists(self::$bundles[$name],'__system_initialize')) self::$bundles[$name]->__system_initialize();
+				if(method_exists(self::$bundles[$name],'__system_initialize')) self::$bundles[$name]->__system_initialize($name);
 				
 				return true;
 			}

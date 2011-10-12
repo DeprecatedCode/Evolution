@@ -10,4 +10,5 @@ use Evolution\Extend\MysqlBundle;
  * @author David Boskovic
  */
 class Bundle extends MysqlBundle {
+	
 }

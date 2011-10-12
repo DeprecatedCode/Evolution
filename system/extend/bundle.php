@@ -7,12 +7,9 @@ use Evolution\Kernel;
 
 class DefaultBundle {
 	
-	public function __system_initialize() {
-		$bundle=strtolower(substr(substr(get_class($this),0,-7),strlen('Evolution\\Bundles\\')));
+	public function __system_initialize($bundle) {
 		// Include any assets
-		foreach(glob(Kernel::$root . '/bundles/'.$bundle.'/assets/*') as $file)
+		foreach(glob(Kernel::$bundlePaths[$bundle].'/assets/*') as $file)
 		    require_once($file);
-		// load configuration options
-		// 
 	}
 }
