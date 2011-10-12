@@ -1,9 +1,9 @@
 <?php
 
 namespace Evolution\Bundles\Bindings;
-use Evolution\Utility\JSON;
-use Evolution\Kernel;
+use \Evolution\Kernel;
 use \Exception;
+use \Evolution\Utility\JSON;
 
 /**
  * Evolution Bindings Bundle
@@ -28,6 +28,11 @@ class Bundle {
         return new Collection(
             isset(self::$bindings[$name]) ? self::$bindings[$name] : array()
         );
+    }
+    
+    // Return and stop execution
+    public function complete($value = null) {
+        throw new Completion($value);
     }
     
     private static function loadBindings() {
@@ -105,5 +110,16 @@ class Collection {
 
         // Return the array
         return $return;
+    }
+}
+
+/**
+ * Bindings Completion Exception
+ */
+class Completion extends Exception {
+    public $value;
+    
+    public function __construct($value) {
+           $this->value = $value;
     }
 }

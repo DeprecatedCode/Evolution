@@ -1,7 +1,7 @@
 <?php
 
 namespace Evolution\Bundles\Controller;
-use Evolution\Kernel;
+use \Evolution\Kernel;
 use \Exception;
 
 /**
@@ -70,10 +70,13 @@ class Bundle {
 				   throw new Exception("Controller `$name` exists but the method `$method` not specified");
 	
 			// Call the appropriate controller method with the remaining path elements as arguments
-			return call_user_func_array(
+			$result = call_user_func_array(
 				array($this->controllers[$file], $method),
 				$path
 			);
+            
+            // Complete the current binding queue
+            Kernel::bindings()->complete($result);
 		}
 	}
 	

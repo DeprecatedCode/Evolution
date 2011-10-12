@@ -1,8 +1,7 @@
 <?php
 
 namespace Controllers\Test;
-use Evolution\Kernel as e;
-
+use \Evolution\Kernel as e;
 use \Exception;
 
 /**
@@ -12,7 +11,7 @@ use \Exception;
 class Controller {
 	
 	public function apple() {
-		e::members();
+		//e::members();
 		echo 'test';
 		return 1;
 	}

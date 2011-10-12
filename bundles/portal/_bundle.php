@@ -1,8 +1,10 @@
 <?php
 
 namespace Evolution\Bundles\Portal;
-use Evolution\Kernel;
+use \Evolution\Kernel;
 use \Exception;
+use \Evolution\Bundles\Bindings\Completion;
+use \Evolution\Bundles\Router\NotFoundException;
 
 /**
  * Evolution Portal Bundle
@@ -12,6 +14,7 @@ class Bundle {
     
     public $portalPaths = array();
 
+    // Route the portal
     public function route($path) {
         
         // Check for null first segment
@@ -45,8 +48,15 @@ class Bundle {
             try {
                 $matches = Kernel::bindings('portal:route')->execute($dirs, $path);
 
-                # @todo if no match was made 404 binding
-            } 
+                // If no match was made
+                $pstr = '/' . implode('/', $path);
+                throw new NotFoundException("Resource not found at `$pstr`");
+            }
+            
+            // Handle successful routing
+            catch(Completion $object) {
+                throw $object;
+            }
             
             // Handle any exceptions
             catch(Exception $exception) {
@@ -60,9 +70,6 @@ class Bundle {
                 // Else throw the error
                 throw $exception;
             }
-            
-            # @todo if no match was made 404 binding
-
         }
     }
 }

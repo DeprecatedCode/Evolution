@@ -23,34 +23,14 @@ foreach(glob(__DIR__ . '/extend/*') as $file)
 // Include Evolution
 require_once(__DIR__ . '/kernel.php');
 
-// Short access to the kernel
-use Evolution\Kernel as e;
+// Kernel access
+use \Evolution\Kernel;
 
 // Handle errors
-set_error_handler(e::$errorHandler);
+set_error_handler(Kernel::$errorHandler);
 
 // Handle exceptions
-set_exception_handler(e::$exceptionHandler);
+set_exception_handler(Kernel::$exceptionHandler);
 
 // Route the request
-e::router(
-
-    array(
-        'data'      => $_POST,
-        'query'     => $_GET,
-        'name'      => $_SERVER['SERVER_NAME'],
-        'address'   => $_SERVER['SERVER_ADDR'],
-        'port'      => $_SERVER['SERVER_PORT'],
-        'host'      => $_SERVER['HTTP_HOST'],
-        'path'      => $_SERVER['REDIRECT_URL'],
-        'root'      => $_SERVER['DOCUMENT_ROOT'],
-        'protocol'  => $_SERVER['SERVER_PROTOCOL']
-    ),
-    
-    array(
-        'address'   => $_SERVER['REMOTE_ADDR'],
-        'port'      => $_SERVER['REMOTE_PORT'],
-        'userAgent' => $_SERVER['HTTP_USER_AGENT']
-    )
-
-);
+Kernel::router()->route();

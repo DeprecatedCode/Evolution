@@ -2,7 +2,7 @@
 
 namespace Evolution;
 use \Exception;
-use Evolution\Utility\JSON;
+use \Evolution\Utility\JSON;
 
 /**
  * Evolution Kernel

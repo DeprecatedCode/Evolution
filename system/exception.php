@@ -55,7 +55,15 @@
 					if(strlen($message) < 2)
 						$message = 'An unknown error has occurred';
 					$message = preg_replace('~(\/)~', '$1&#8203;', $message);
-					echo '<p>'.preg_replace('/`([^`]*)`/x', '<code>$1</code>', $message).'</p>'; 
+					echo '<p>'.preg_replace('/`([^`]*)`/x', '<code>$1</code>', $message).'</p>';
+                    
+                    $previous = $exception->getPrevious();
+                    if(is_object($previous)) {
+                        echo '<h4>Previously Uncaught '.get_class($previous).'</h4>';
+                        echo '<pre>';
+                        var_dump($previous->getTrace());
+                        echo '</pre>';
+                    }
 				?>
 				</div>
 			</div>
