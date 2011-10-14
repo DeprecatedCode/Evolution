@@ -2,17 +2,21 @@
 
 namespace Evolution\Bundles\Portal;
 use \Evolution\Kernel;
+use \Evolution\Configure;
 use \Exception;
 use \Evolution\Bundles\Bindings\Completion;
 use \Evolution\Bundles\Router\NotFoundException;
+
+/**
+ * Standard configuration
+ */
+Configure::add('portal.location', Kernel::$root . '/portals');
 
 /**
  * Evolution Portal Bundle
  * @author Nate Ferrero
  */
 class Bundle {
-    
-    public $portalPaths = array();
 
     // Route the portal
     public function route($path) {
@@ -20,10 +24,6 @@ class Bundle {
         // Check for null first segment
         if(!isset($path[0]))
             return false;
-    
-        // Add the standard portal path if none set
-        if(count($this->portalPaths) == 0)
-            $this->portalPaths[] = Kernel::$root . '/portals';
         
         // Paths where this portal exists
         $dirs = array();
@@ -31,8 +31,11 @@ class Bundle {
         // Portal Name
         $name = strtolower($path[0]);
         
+        // Get portal paths
+        $searchdirs = Configure::getArray('portal.location');
+        
         // Check for portal in paths
-        foreach($this->portalPaths as $dir) {
+        foreach($searchdirs as $dir) {
             $dir .= '/' . $name;
             if(is_dir($dir))
                 $dirs[] = $dir;
@@ -46,7 +49,7 @@ class Bundle {
             
             // Process the portal bindings
             try {
-                $matches = Kernel::bindings('portal:route')->execute($dirs, $path);
+                $matches = Kernel::bindings('portal:route')->execute($path, $dirs);
 
                 // If no match was made
                 $pstr = '/' . implode('/', $path);

@@ -1,8 +1,14 @@
 <?php
 
 namespace Evolution;
-use \Exception;
+use \Evolution\Configure;
 use \Evolution\Utility\JSON;
+use \Exception;
+
+/**
+ * Standard configuration
+ */
+Configure::add('bundle.location', dirname(__DIR__) . '/bundles');
 
 /**
  * Evolution Kernel
@@ -48,13 +54,11 @@ class Kernel {
 		// Reset bundle paths
 		self::$bundlePaths = array();
 		
-		// Look for bundles in these directories
-		$searchLocations = array(
-			self::$root . '/bundles'
-		);
+		// Get configured locations for bundles
+		$locations = Configure::getArray('bundle.location');
 		
-		// Check each location for bundles
-		foreach($searchLocations as $location) {
+		// Iterate through each and grab bundle paths
+		foreach($locations as $location) {
 			foreach(glob($location . '/*', GLOB_ONLYDIR) as $dir) {
 				$name = basename($dir);
 				
@@ -112,7 +116,8 @@ class Kernel {
 				self::$bundles[$name] = new $class;
 				
 				// initialize the bundle if wanted
-				if(method_exists(self::$bundles[$name],'__system_initialize')) self::$bundles[$name]->__system_initialize($name);
+				if(method_exists(self::$bundles[$name], '__system_initialize'))
+					self::$bundles[$name]->__system_initialize($name);
 				
 				return true;
 			}

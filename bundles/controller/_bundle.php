@@ -2,7 +2,13 @@
 
 namespace Evolution\Bundles\Controller;
 use \Evolution\Kernel;
+use \Evolution\Configure;
 use \Exception;
+
+/**
+ * Standard configuration
+ */
+Configure::add('controller.class-format', '\\Controllers\\%\\Controller');
 
 /**
  * Evolution Controller Bundle
@@ -12,7 +18,11 @@ class Bundle {
 	
 	private $controllers = array();
 	
-	public function route($dirs, $path) {
+	public function route($path, $dirs = null) {
+		
+		// If dirs are not specified, use defaults
+		if(is_null($dirs))
+			$dirs = Configure::getArray('controller.location');
 		
 		// Make sure path contains valid controller name
 		if(!isset($path[0]) || $path[0] == '')
@@ -23,9 +33,9 @@ class Bundle {
 		
 		// Check all dirs for a matching controller
 		foreach($dirs as $dir) {
-			
 			// Look in controllers folder
-			$dir .= '/controllers';
+			if(basename($dir) !== 'controllers')
+				$dir .= '/controllers';
 			
 			// Skip if missing
 			if(!is_dir($dir))
@@ -45,13 +55,30 @@ class Bundle {
 				require_once($file);
 				
 				// Controller class
-				$class = "\\Controllers\\$name\\Controller";
+				$classFormats = Configure::getArray('controller.class-format');
 				
-				// Check for valid class
-				if(!class_exists($class))
-					throw new Exception("Class `$class` is not defined in `$file`");
+				// Check each class format
+				$found = false;
+				foreach($classFormats as $format) {
 					
-				// Load bundle
+					// Format class with controller name
+					$class = str_replace("%", $name, $format);
+					
+					// Check if this is a valid class
+					if(class_exists($class)) {
+						$found = true;
+						break;
+					}
+				}
+				
+				// Maybe we just ran out of formats to check
+				if(!$found) {
+					$classes = implode('`, `', $classFormats);
+					$classes = str_replace('%', $name, $classes);
+					throw new Exception("None of the possible controller classes: `$classes` are defined in `$file`");
+				}
+				
+				// Load controller
 				$this->controllers[$file] = new $class;
 			}
 			

@@ -76,7 +76,7 @@ class Bundle {
         catch(Exception $exception) {
             
             // Update exception
-            $exception = new Exception($exception->getMessage() . " for path `$pstr`", 0, $exception);
+            $exception = new Exception($exception->getMessage() . " using path `$pstr`", 0, $exception);
             
             // Try to resolve with error pages
             Kernel::bindings('router:exception')->execute($path, $exception);

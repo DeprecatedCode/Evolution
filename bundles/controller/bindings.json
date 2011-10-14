@@ -1,3 +1,4 @@
 [
-    {"name": "portal:route", "method": "route"}
+    {"name": "portal:route", "method": "route"},
+    {"name": "router:route", "method": "route"}
 ]
